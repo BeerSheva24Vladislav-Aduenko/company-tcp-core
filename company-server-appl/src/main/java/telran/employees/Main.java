@@ -1,7 +1,7 @@
 package telran.employees;
 
-import telran.io.Persistable;
-import telran.net.TcpServer;
+import telran.io.*;
+import telran.net.*;
 
 public class Main {
     private static final String FILE_NAME = "employees.data";
@@ -12,7 +12,11 @@ public class Main {
                 if (company instanceof Persistable persistable) {
                     persistable.restoreFromFile(FILE_NAME);
             }
-            TcpServer tcpServer = new TcpServer(new CompanyProtocol(company), PORT);
-            tcpServer.run();
+            Protocol protocol = new CompanyProtocol(company);
+            TCPServer server = new TCPServer(protocol, PORT);
+            Thread threadServer = new Thread(server);
+            threadServer.start();
+            SaverToFile saver = new SaverToFile(company);
+            saver.start();
     }
 }
